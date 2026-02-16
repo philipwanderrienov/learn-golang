@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"errors"
+	"strings"
 
 	"github.com/example/golang-project/internal/model"
 	"github.com/example/golang-project/internal/repository"
@@ -20,6 +22,10 @@ func NewUserService(r *repository.UserRepository) *UserService {
 // CreateUser validates and creates a new user, returning the created ID.
 func (s *UserService) CreateUser(ctx context.Context, u *model.User) (int64, error) {
 	// In a .NET style you'd validate DTOs here; keep simple and delegate to repo.
+	if strings.TrimSpace(u.Name) == "" || strings.TrimSpace(u.Email) == "" {
+		return 0, errors.New("name and email are required")
+	}
+
 	return s.repo.Create(ctx, u)
 }
 

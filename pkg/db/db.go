@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -14,6 +15,11 @@ func ConnectDB(connStr string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Add connection pool tuning:
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
 	// Ping to verify connectivity and credentials early.
 	if err := db.Ping(); err != nil {

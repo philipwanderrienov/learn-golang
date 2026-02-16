@@ -1,5 +1,26 @@
 basePath: /
 definitions:
+  model.ChurchMember:
+    properties:
+      address:
+        type: string
+      biography:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      joined_at:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      updated_at:
+        type: string
+    type: object
   model.User:
     properties:
       created_at:
@@ -9,7 +30,12 @@ definitions:
       id:
         type: integer
       name:
+        maxLength: 255
+        minLength: 1
         type: string
+    required:
+    - email
+    - name
     type: object
 host: localhost:8080
 info:
@@ -19,6 +45,187 @@ info:
   title: Users Microservice API
   version: "1.0"
 paths:
+  /members:
+    get:
+      description: Retrieve all church members from the database, ordered by join
+        date (newest first)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of members
+          schema:
+            items:
+              $ref: '#/definitions/model.ChurchMember'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: List all church members
+      tags:
+      - members
+    post:
+      consumes:
+      - application/json
+      description: Create a new church member with name, email, and optional biography
+      parameters:
+      - description: Church member data
+        in: body
+        name: member
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChurchMember'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Member created
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+        "400":
+          description: Invalid request body or validation error
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create a new church member
+      tags:
+      - members
+  /members/{id}:
+    delete:
+      description: Delete church member by ID
+      parameters:
+      - description: Member ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No content
+          schema:
+            type: string
+        "400":
+          description: Invalid ID
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Delete a church member
+      tags:
+      - members
+    get:
+      description: Retrieve a church member by their ID
+      parameters:
+      - description: Member ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Member data
+          schema:
+            $ref: '#/definitions/model.ChurchMember'
+        "400":
+          description: Invalid ID
+          schema:
+            type: string
+        "404":
+          description: Member not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get church member by ID
+      tags:
+      - members
+    put:
+      consumes:
+      - application/json
+      description: Update church member information including name, email, phone,
+        address, and biography
+      parameters:
+      - description: Member ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated member data
+        in: body
+        name: member
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChurchMember'
+      responses:
+        "204":
+          description: No content
+          schema:
+            type: string
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "404":
+          description: Member not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Update a church member
+      tags:
+      - members
+  /members/joined:
+    get:
+      description: Retrieve church members joined within a specific date range
+      parameters:
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: start
+        required: true
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of members
+          schema:
+            items:
+              $ref: '#/definitions/model.ChurchMember'
+            type: array
+        "400":
+          description: Invalid date format
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: List church members by joined date range
+      tags:
+      - members
   /users:
     get:
       description: Retrieve all users from the database
